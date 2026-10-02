@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import incomeRoutes from "./routes/incomeRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -16,8 +17,9 @@ app.get("/", (req, res) => {
 
 // All routes go here, BEFORE notFound
 app.use("/api/auth", authRoutes);
+app.use("/api/income", incomeRoutes);
 
-// These two must be LAST, after all routes
+// These two must be LAST
 app.use(notFound);
 app.use(errorHandler);
 
