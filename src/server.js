@@ -1,11 +1,9 @@
-import "dotenv/config";
+﻿import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-import incomeRoutes from "./routes/incomeRoutes.js";
-import expenseRoutes from "./routes/expenseRoutes.js";
-import categoryRoutes from "./routes/categoryRoutes.js";
+import transactionRoutes from "./routes/transactionRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
 import summaryRoutes from "./routes/summaryRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
@@ -20,9 +18,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api/income", incomeRoutes);
-app.use("/api/expenses", expenseRoutes);
-app.use("/api/categories", categoryRoutes);
+app.use("/api/transactions", transactionRoutes);
 app.use("/api/budgets", budgetRoutes);
 app.use("/api/summary", summaryRoutes);
 

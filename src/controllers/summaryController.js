@@ -1,34 +1,20 @@
-import Income from "../models/Income.js";
-import Expense from "../models/Expense.js";
+﻿import Transaction from "../models/Transaction.js";
 
 const round = (n) => Math.round(n * 100) / 100;
 
 export const getSummary = async (req, res) => {
   const user = req.user._id;
-  const sum = [{ $match: { user } }, { $group: { _id: null, total: { $sum: "$amount" } } }];
-
-  const [inc, exp, byCategory, recentIncome, recentExpense] = await Promise.all([
-    Income.aggregate(sum),
-    Expense.aggregate(sum),
-    Expense.aggregate([
-      { $match: { user } },
+  const [totals, byCategory, recent] = await Promise.all([
+    Transaction.aggregate([{ $match: { user } }, { $group: { _id: "$type", total: { $sum: "$amount" } } }]),
+    Transaction.aggregate([
+      { $match: { user, type: "Expense" } },
       { $group: { _id: "$category", total: { $sum: "$amount" } } },
       { $sort: { total: -1 } },
     ]),
-    Income.find({ user }).sort({ date: -1 }).limit(5).lean(),
-    Expense.find({ user }).sort({ date: -1 }).limit(5).lean(),
+    Transaction.find({ user }).sort({ date: -1, createdAt: -1 }).limit(5).lean(),
   ]);
-
-  const totalIncome = round(inc[0]?.total || 0);
-  const totalExpenses = round(exp[0]?.total || 0);
-
-  const recent = [
-    ...recentIncome.map((t) => ({ ...t, type: "Income" })),
-    ...recentExpense.map((t) => ({ ...t, type: "Expense" })),
-  ]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 5);
-
+  const totalIncome = round(totals.find((t) => t._id === "Income")?.total || 0);
+  const totalExpenses = round(totals.find((t) => t._id === "Expense")?.total || 0);
   res.json({
     totalIncome,
     totalExpenses,
